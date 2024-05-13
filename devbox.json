@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.6/.schema/devbox.schema.json",
+  "packages": {
+    "python": "3.10.14",
+    "darwin.apple_sdk.frameworks.CoreFoundation": {
+      "platforms": [
+        "aarch64-darwin"
+      ]
+    },
+    "darwin.apple_sdk.frameworks.MetalKit": {
+      "platforms": [
+        "aarch64-darwin"
+      ]
+    },
+    "darwin.apple_sdk.frameworks.Accelerate": {
+      "platforms": [
+        "aarch64-darwin"
+      ]
+    }
+  },
+  "shell": {
+    "init_hook": [
+      "python -m venv llm/llama.cpp/.venv",
+      "source llm/llama.cpp/.venv/bin/activate",
+      "pip install -r llm/llama.cpp/requirements.txt",
+      "pip install -r llm/llama.cpp/examples/llava/requirements.txt"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
