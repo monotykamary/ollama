@@ -1,0 +1,50 @@
+name: Build and Push Docker image
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  wake-runner:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Wake up runner
+      run: |
+        curl --max-time 2 -Is $RUNNER_URL || true
+      shell: bash
+      env:
+        RUNNER_URL: ${{ secrets.RUNNER_URL }}
+
+  build-and-push:
+    runs-on: self-hosted
+    needs: wake-runner
+    permissions: write-all
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: Start dockerd and add nameservers
+      run: |
+        dockerd &
+        echo 'nameserver 8.8.8.8' | sudo tee /etc/resolv.conf > /dev/null
+        echo 'nameserver 8.8.4.4' | sudo tee -a /etc/resolv.conf > /dev/null
+      shell: bash
+        
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ghcr.io/monotykamary/ollama:latest
